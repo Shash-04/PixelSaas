@@ -131,7 +131,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
                         <div>
                             <div className="font-semibold">Original</div>
                             <div>
-                                {isNaN(Number(video.originalSize)) ? "N/A" : formatSize(Number(video.originalSize))}
+                            {video.originalSize}
                             </div>
 
                         </div>
@@ -141,9 +141,8 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
                         <div>
                             <div className="font-semibold">Compressed</div>
                             <div>
-                                {isNaN(Number(video.compressedSize)) ? "N/A" : formatSize(Number(video.compressedSize))}
+                              {video.compressedSize}
                             </div>
-
                         </div>
                     </div>
                 </div>
