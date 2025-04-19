@@ -6,7 +6,6 @@ import dayjs from 'dayjs';
 import realtiveTime from "dayjs/plugin/relativeTime"
 import { filesize } from "filesize"
 import { Video } from "@/types"
-import { useMemo } from 'react';
 
 dayjs.extend(realtiveTime)
 
@@ -59,12 +58,9 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
         return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
     }, []);
 
-    const compressionPercentage = useMemo(() => {
-        const original = Number(video.originalSize);
-        const compressed = Number(video.compressedSize);
-        if (isNaN(original) || isNaN(compressed) || original === 0) return 0;
-        return Math.round((1 - compressed / original) * 100);
-    }, [video.originalSize, video.compressedSize]);
+    const compressionPercentage = Math.round(
+        (1 - Number(video.compressedSize) / Number(video.originalSize)) * 100
+      );
 
 
     useEffect(() => {

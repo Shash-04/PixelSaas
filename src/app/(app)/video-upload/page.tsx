@@ -9,6 +9,7 @@ function VideoUpload() {
     const [description, setDescription] = useState("")
     const [isUploading, setIsUploading] = useState(false)
     const [uploadProgress, setUploadProgress] = useState(0)
+    const [status, setStatus] = useState<string>("")
 
     const router = useRouter()
 
@@ -24,9 +25,11 @@ function VideoUpload() {
         }
 
         setIsUploading(true)
+        setStatus("Preparing upload...")
         
         try {
             // Step 1: Get upload signature from backend
+            setStatus("Getting signature...")
             const { data: signData } = await axios.get("/api/get-signature")
             
             // Step 2: Prepare form data for Cloudinary
@@ -38,6 +41,7 @@ function VideoUpload() {
             cloudinaryFormData.append("folder", "video-uploads")
             
             // Step 3: Upload directly to Cloudinary
+            setStatus("Uploading to cloud...")
             const uploadResponse = await axios.post(
                 `https://api.cloudinary.com/v1_1/${signData.cloudName}/video/upload`,
                 cloudinaryFormData,
@@ -53,23 +57,29 @@ function VideoUpload() {
             )
             
             // Step 4: Save metadata to our database
+            setStatus("Processing and saving...")
             await axios.post("/api/save-video", {
                 title,
                 description,
                 publicId: uploadResponse.data.public_id,
                 originalSize: file.size,
-                bytes: uploadResponse.data.bytes,
                 duration: uploadResponse.data.duration || 0
             })
             
-            // Redirect to home page
-            router.push("/")
+            setStatus("Upload complete!")
+            
+            // Short delay before redirect for user to see completion message
+            setTimeout(() => {
+                // Redirect to home page
+                router.push("/")
+            }, 1000)
+            
         } catch (error) {
             console.error("Upload error:", error)
+            setStatus("Upload failed!")
             alert("Video Upload failed")
         } finally {
             setIsUploading(false)
-            setUploadProgress(0)
         }
     }
 
@@ -112,12 +122,12 @@ function VideoUpload() {
                     />
                 </div>
                 {isUploading && (
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
                         <div 
                             className="bg-blue-600 h-2.5 rounded-full" 
                             style={{width: `${uploadProgress}%`}}
                         ></div>
-                        <p className="text-xs text-white mt-1">{uploadProgress}% Uploaded</p>
+                        <p className="text-xs text-white mt-1">{uploadProgress}% {status}</p>
                     </div>
                 )}
                 <button
@@ -131,6 +141,5 @@ function VideoUpload() {
         </div>
     );
 }
-
 
 export default VideoUpload
