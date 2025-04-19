@@ -122,7 +122,7 @@ function VideoUpload() {
                 )}
                 <button
                     type="submit"
-                    className="btn btn-primary"
+                    className="btn btn-primary mt-2"
                     disabled={isUploading}
                 >
                     {isUploading ? "Uploading..." : "Upload Video"}
