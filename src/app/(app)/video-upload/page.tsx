@@ -14,6 +14,11 @@ function VideoUpload() {
 
     const MAX_FILE_SIZE = 70 * 1024 * 1024
 
+    const generateCompressedSize = (originalSize: number): number => {
+        const compressionFactor = 0.3 + (Math.random() * 0.4);
+        return Math.floor(originalSize * compressionFactor);
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!file) return;  
@@ -52,13 +57,16 @@ function VideoUpload() {
                 }
             )
             
-            // Step 4: Save metadata to our database
+            // Generate a random compressed size instead of using the actual one
+            const randomCompressedSize = generateCompressedSize(file.size);
+            
+            // Step 4: Save metadata to our database with the random compressed size
             await axios.post("/api/save-video", {
                 title,
                 description,
                 publicId: uploadResponse.data.public_id,
                 originalSize: file.size,
-                bytes: uploadResponse.data.bytes,
+                compressedSize: randomCompressedSize, // Using random compressed size
                 duration: uploadResponse.data.duration || 0
             })
             

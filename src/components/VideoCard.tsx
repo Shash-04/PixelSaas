@@ -17,7 +17,6 @@ interface VideoCardProps {
 const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
     const [isHovered, setIsHovered] = useState(false)
     const [previewError, setPreviewError] = useState(false)
-    const [link, setLink] = useState("")
 
     const getThumbnailUrl = useCallback((publicId: string) => {
         return getCldImageUrl({
@@ -49,8 +48,18 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
         })
     }, [])
 
-    const formatSize = useCallback((size: number) => {
-        return filesize(size)
+    // Updated format size function to ensure KB/MB display
+    const formatSize = useCallback((sizeInBytes: string | number) => {
+        const size = typeof sizeInBytes === 'string' ? parseInt(sizeInBytes) : sizeInBytes;
+        
+        if (isNaN(size)) return '0 B';
+        
+        // Using the filesize library for consistent formatting
+        return filesize(size, {
+            base: 2,  // Use binary (1024) instead of decimal (1000)
+            standard: "jedec", // Use KB, MB, GB format instead of KiB, MiB, GiB
+            round: 1  // Round to 1 decimal place
+        });
     }, [])
 
     const formatDuration = useCallback((seconds: number) => {
@@ -82,6 +91,10 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
     const handlePreviewError = () => {
         setPreviewError(true);
     };
+
+    // Get formatted sizes
+    const formattedOriginalSize = formatSize(video.originalSize);
+    const formattedCompressedSize = formatSize(video.compressedSize);
 
     return (
         <div
@@ -131,17 +144,16 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
                         <div>
                             <div className="font-semibold">Original</div>
                             <div>
-                            {video.originalSize}
+                                {formattedOriginalSize}
                             </div>
-
                         </div>
                     </div>
                     <div className="flex items-center">
-                        <FileDownIcon size={18} className="mr-2  text-green-400" />
+                        <FileDownIcon size={18} className="mr-2 text-green-400" />
                         <div>
                             <div className="font-semibold">Compressed</div>
                             <div>
-                              {video.compressedSize}
+                                {formattedCompressedSize}
                             </div>
                         </div>
                     </div>

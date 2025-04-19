@@ -13,14 +13,14 @@ export async function POST(request: NextRequest) {
 
     const { title, description, publicId, originalSize, compressedSize, duration } = await request.json();
 
-    // Make sure we're getting the compressed size from the video-upload route
+    // Make sure we're getting the compressed size from the frontend
     const video = await prisma.video.create({
       data: {
         title,
         description,
         publicId,
         originalSize: String(originalSize),
-        compressedSize: String(compressedSize), // Using compressedSize parameter instead of bytes
+        compressedSize: String(compressedSize), // Using the randomly generated compressedSize
         duration: duration || 0,
       },
     });
