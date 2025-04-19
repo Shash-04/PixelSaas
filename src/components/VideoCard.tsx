@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect, useCallback } from 'react'
 import { getCldImageUrl, getCldVideoUrl } from "next-cloudinary"
-import { Download, Clock, FileDown, FileUp, FileDownIcon } from "lucide-react";
+import { Download, Clock, FileDown, FileUp, FileDownIcon, LucideShare, Link, Link2 } from "lucide-react";
 import dayjs from 'dayjs';
 import realtiveTime from "dayjs/plugin/relativeTime"
 import { filesize } from "filesize"
@@ -17,6 +17,7 @@ interface VideoCardProps {
 const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
     const [isHovered, setIsHovered] = useState(false)
     const [previewError, setPreviewError] = useState(false)
+    const [link, setLink] = useState("")
 
     const getThumbnailUrl = useCallback((publicId: string) => {
         return getCldImageUrl({
@@ -58,10 +59,21 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
         return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
     }, []);
 
+    const handleShare = () => {
+        const videoUrl = getFullVideoUrl(video.publicId);
+        navigator.clipboard.writeText(videoUrl)
+            .then(() => {
+                alert("Link copied to clipboard!");
+            })
+            .catch((err) => {
+                console.error("Failed to copy link:", err);
+                alert("Failed to copy link. Please try again.");
+            });
+    };
+
     const compressionPercentage = Math.round(
         (1 - Number(video.compressedSize) / Number(video.originalSize)) * 100
-      );
-
+    );
 
     useEffect(() => {
         setPreviewError(false);
@@ -140,6 +152,12 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
                         Compression:{" "}
                         <span className="text-white">{compressionPercentage}%</span>
                     </div>
+                    <button 
+                        className="flex gap-1 items-center bg-blue-500 p-2 rounded-md text-white cursor-pointer hover:bg-blue-600 transition-all"
+                        onClick={handleShare}
+                    >
+                        Share <Link2 size={16} /> 
+                    </button>
                     <button
                         className="btn btn-primary btn-sm"
                         onClick={() =>
