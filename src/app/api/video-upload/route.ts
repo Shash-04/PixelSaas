@@ -1,10 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import { NextResponse, NextRequest } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { PrismaClient } from "../../../../generated/prisma";
-
-
-const prisma = new PrismaClient()
 
 cloudinary.config({
     cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -14,11 +10,10 @@ cloudinary.config({
 
 interface CloudinaryUploadResult {
     public_id: string,
-    bytes : number;
+    bytes: number;
     duration ?: number;
     [key: string]: any
 }
-
 
 export async function POST(request: NextRequest) {
     try {
@@ -43,10 +38,10 @@ export async function POST(request: NextRequest) {
         const result = await new Promise<CloudinaryUploadResult>(
             (resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { resource_type : "video",
-                        folder:"video-uploads",
+                    { resource_type: "video",
+                        folder: "video-uploads",
                         transformation: [
-                            {quality : "auto", fetch_format : "mp4"},
+                            {quality: "auto", fetch_format: "mp4"},
                         ]
                     },
                     (error, result) => {
@@ -57,22 +52,29 @@ export async function POST(request: NextRequest) {
                 uploadStream.end(buffer)
             }
         )
-        const video = await prisma.video.create({
-            data : {
+
+        // Instead of creating the video in the database here,
+        // forward the data to the save-video endpoint
+        const saveVideoResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/save-video`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': request.headers.get('authorization') || '',
+            },
+            body: JSON.stringify({
                 title,
                 description,
-                publicId : result.public_id,
-                originalSize:String(originalSize),
-                compressedSize : String(result.bytes),
-                duration : result.duration || 0
-            }
-        })   
-        return NextResponse.json(video)
+                publicId: result.public_id,
+                originalSize: originalSize,
+                bytes: result.bytes, // This will be the compressed size
+                duration: result.duration || 0
+            }),
+        });
+
+        const savedVideo = await saveVideoResponse.json();
+        return NextResponse.json(savedVideo);
     } catch (error) {
         console.log("Video Upload failed", error)
         return NextResponse.json({ error: "Upload Video failed" }, { status: 500 })
     }
-    finally{
-        await prisma.$disconnect()
-    }    
 }
