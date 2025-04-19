@@ -1,10 +1,12 @@
+"use client"
 import React, { useState, useEffect, useCallback } from 'react'
 import { getCldImageUrl, getCldVideoUrl } from "next-cloudinary"
 import { Download, Clock, FileDown, FileUp, FileDownIcon } from "lucide-react";
 import dayjs from 'dayjs';
 import realtiveTime from "dayjs/plugin/relativeTime"
 import { filesize } from "filesize"
-import {Video} from "@/types"
+import { Video } from "@/types"
+import { useMemo } from 'react';
 
 dayjs.extend(realtiveTime)
 
@@ -46,7 +48,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
             rawTransformations: ["e_preview:duration_15:max_seg_9:min_seg_dur_1"]
         })
     }, [])
-    
+
     const formatSize = useCallback((size: number) => {
         return filesize(size)
     }, [])
@@ -57,9 +59,13 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
         return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
     }, []);
 
-    const compressionPercentage = Math.round(
-        (1 - Number(video.compressedSize) / Number(video.originalSize)) * 100
-    );
+    const compressionPercentage = useMemo(() => {
+        const original = Number(video.originalSize);
+        const compressed = Number(video.compressedSize);
+        if (isNaN(original) || isNaN(compressed) || original === 0) return 0;
+        return Math.round((1 - compressed / original) * 100);
+    }, [video.originalSize, video.compressedSize]);
+
 
     useEffect(() => {
         setPreviewError(false);
@@ -116,14 +122,20 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
                         <FileUp size={18} className="mr-2 text-red-500" />
                         <div>
                             <div className="font-semibold">Original</div>
-                            <div>{formatSize(Number(video.originalSize))}</div>
+                            <div>
+                                {isNaN(Number(video.originalSize)) ? "N/A" : formatSize(Number(video.originalSize))}
+                            </div>
+
                         </div>
                     </div>
                     <div className="flex items-center">
                         <FileDownIcon size={18} className="mr-2  text-green-400" />
                         <div>
                             <div className="font-semibold">Compressed</div>
-                            <div className=''>{formatSize(Number(video.compressedSize))}</div>
+                            <div>
+                                {isNaN(Number(video.compressedSize)) ? "N/A" : formatSize(Number(video.compressedSize))}
+                            </div>
+
                         </div>
                     </div>
                 </div>
