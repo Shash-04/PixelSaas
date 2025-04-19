@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const transformedPublicId = publicId.replace('video-uploads/', 'video-uploads/q_auto,f_mp4/');
     
     // Wait for Cloudinary to finish processing - this is crucial
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 7000));
     
     // Fetch resources explicitly with the transformations we want 
     const resource = await cloudinary.api.resource(publicId, {
