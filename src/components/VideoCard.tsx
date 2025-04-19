@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { getCldImageUrl, getCldVideoUrl } from "next-cloudinary"
-import { Download, Clock, FileDown, FileUp } from "lucide-react";
+import { Download, Clock, FileDown, FileUp, FileDownIcon } from "lucide-react";
 import dayjs from 'dayjs';
 import realtiveTime from "dayjs/plugin/relativeTime"
 import { filesize } from "filesize"
@@ -113,24 +113,24 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
                 </p>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="flex items-center">
-                        <FileUp size={18} className="mr-2 text-primary" />
+                        <FileUp size={18} className="mr-2 text-red-500" />
                         <div>
                             <div className="font-semibold">Original</div>
                             <div>{formatSize(Number(video.originalSize))}</div>
                         </div>
                     </div>
                     <div className="flex items-center">
-                        <FileDown size={18} className="mr-2 text-secondary" />
+                        <FileDownIcon size={18} className="mr-2  text-green-400" />
                         <div>
                             <div className="font-semibold">Compressed</div>
-                            <div>{formatSize(Number(video.compressedSize))}</div>
+                            <div className=''>{formatSize(Number(video.compressedSize))}</div>
                         </div>
                     </div>
                 </div>
                 <div className="flex justify-between items-center mt-4">
                     <div className="text-sm font-semibold">
                         Compression:{" "}
-                        <span className="text-accent">{compressionPercentage}%</span>
+                        <span className="text-white">{compressionPercentage}%</span>
                     </div>
                     <button
                         className="btn btn-primary btn-sm"
