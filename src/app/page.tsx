@@ -5,6 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Menu, X, Play, CheckCircle } from "lucide-react";
+import dynamic from "next/dynamic";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
+
 
 
 export default function HomePage() {
@@ -175,14 +179,18 @@ export default function HomePage() {
                 className="relative"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg transform -rotate-3 scale-100 opacity-10 blur-xl"></div>
-                <div className="relative overflow-hidden rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                <div className="relative overflow-hidden rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
                   <div className="px-4 py-1 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center space-x-1.5">
                     <div className="w-3 h-3 rounded-full bg-red-400"></div>
                     <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                     <div className="w-3 h-3 rounded-full bg-green-400"></div>
                   </div>
                   <div className="p-4 md:p-6 lg:p-8">
-                    {/* <img src="Logo.png" alt="No image found" /> */}
+                    <DotLottieReact
+                      src="Animation.json"
+                      loop
+                      autoplay
+                    />
                   </div>
                 </div>
               </motion.div>
